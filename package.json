@@ -1,0 +1,19 @@
+{
+  "name": "demoProject",
+  "version": "1.0.0",
+  "description": "Starting skeleton project",
+  "main": "source/js/main.js",
+  "license": "MIT",
+  "repository": "none",
+  "scripts": {
+    "build": "node_modules/.bin/rollup -c --silent"
+  },
+  "devDependencies": {
+    "@babel/core": "^7.1.2",
+    "@babel/preset-env": "^7.1.0",
+    "rollup": "^0.66.6",
+    "rollup-plugin-babel": "^4.0.3",
+    "rollup-plugin-commonjs": "^9.2.0",
+    "rollup-plugin-node-resolve": "^3.4.0"
+  }
+}
