@@ -49,8 +49,8 @@
 		"cB": 0,
 		"ft": 8192,
 		"oA": 0,
-		"oAP": "/build/favicon.ico",
-		"oF": 2
+		"oAP": "/build/images/favicon.ico",
+		"oF": 0
 		},
 	"/source/index.html": {
 		"cB": 0,
