@@ -19,7 +19,7 @@
 		"ft": 65536,
 		"oA": 1,
 		"oAP": "/build/node_modules",
-		"oF": 1
+		"oF": 0
 		},
 	"/package.json": {
 		"ft": 524288,
@@ -71,15 +71,15 @@
 		"oAP": "/build/index.html",
 		"oF": 1
 		},
-	"/source/js/helloWorld.js": {
+	"/source/js/elevationData.js": {
 		"ft": 64,
 		"ma": 0,
-		"mi": 1,
+		"mi": 0,
 		"oA": 1,
-		"oAP": "/build/js/min/helloWorld.js",
+		"oAP": "/build/min/elevationData.js",
 		"oF": 0,
 		"sC": 3,
-		"tS": 1
+		"tS": 0
 		},
 	"/source/js/main.js": {
 		"ft": 64,
@@ -140,11 +140,11 @@
 	},
 "projectAttributes": {
 	"creationDate": 562065816.70207703,
-	"displayValue": "web-project-skeleton",
+	"displayValue": "eGraph",
 	"displayValueWasSetByUser": 0,
 	"iconImageName": "meme-leo",
 	"iconImageWasSetByUser": 0,
-	"lastBuiltDate": 563200405.62968099
+	"lastBuiltDate": 563998365.06778097
 	},
 "projectSettings": {
 	"abortBuildOnError": 1,
