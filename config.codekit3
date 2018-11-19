@@ -9,6 +9,12 @@
 	],
 "creatorBuild": "28905",
 "files": {
+	"/build": {
+		"ft": 65536,
+		"oA": 1,
+		"oAP": "/build/build",
+		"oF": 0
+		},
 	"/node_modules": {
 		"ft": 65536,
 		"oA": 1,
@@ -61,7 +67,7 @@
 	"/source/index.html": {
 		"cB": 0,
 		"ft": 8192,
-		"oA": 0,
+		"oA": 2,
 		"oAP": "/build/index.html",
 		"oF": 1
 		},
@@ -138,7 +144,7 @@
 	"displayValueWasSetByUser": 0,
 	"iconImageName": "meme-leo",
 	"iconImageWasSetByUser": 0,
-	"lastBuiltDate": 564359857.12654305
+	"lastBuiltDate": 564360069.56150496
 	},
 "projectSettings": {
 	"abortBuildOnError": 1,
