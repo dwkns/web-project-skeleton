@@ -24662,27 +24662,32 @@
      */
     Chart.layoutService = Chart.layouts;
 
-    // // source/js/main.js
-
-    let ctx = document.getElementById('myChart'); // var dataArray = [{ x: 1, y: 1 }, { x: 2, y: 3 }, { x: 3, y: 5 }, { x: 4, y: 8 }, { x: 5, y: 7 }, { x: 6, y: 4 }, { x: 7, y: 2 }, { x: 8, y: 1 }];
-    // var something;
-
-    var myChart = new chart(ctx, {
-      // type: 'LineWithLine',
-      type: 'scatter',
+    // source/js/main.js
+    let ctx = document.getElementById('myChart');
+    const brandOrange = ['rgba(255, 179, 74, 1)'];
+    new chart(ctx, {
+      plugins: verticalLineAtMouse,
+      type: 'line',
       data: {
         datasets: [{
           data: elevationData,
-          backgroundColor: ['rgba(255, 179, 74, 1)'],
-          borderColor: ['rgba(255, 179, 74, 0.4)'],
-          borderWidth: 1,
-          showLine: true,
+          backgroundColor: brandOrange,
+          borderColor: brandOrange,
+          borderWidth: 0,
+          pointHoverRadius: 0,
           pointRadius: 0
         }]
       },
       options: {
+        customLine: {
+          color: 'black'
+        },
         tooltips: {
           enabled: false,
+          animationDuration: 0,
+          mode: 'index',
+          custom: customTooltips,
+          position: 'custom',
           intersect: false
         },
         legend: {
@@ -24695,7 +24700,7 @@
               max: undefined,
               min: 0,
               stepSize: 50,
-              callback: function (value, index, values) {
+              callback: function (value) {
                 if (value != 0) {
                   return value + ' m';
                 } else {
@@ -24705,17 +24710,21 @@
             }
           }],
           xAxes: [{
+            type: 'linear',
+            position: 'bottom',
             ticks: {
               beginAtZero: true,
               max: maxDistance(elevationData),
               min: 0,
-              // stepSize: 10,
+              stepSize: 10,
               maxTicksLimit: 12,
               callback: function (value, index, values) {
-                if (value != 0) {
-                  return value + ' km';
+                if (value === 0) {
+                  return value; // No 'km' on zero
                 } else {
-                  return value;
+                  if (index === values.length - 1) return ''; // No last value
+
+                  return value + ' km'; // Everything else has a km attached.
                 }
               }
             }
@@ -24723,129 +24732,200 @@
         }
       }
     });
+    var verticalLineAtMouse = {
+      defaultOptions: {
+        strokeStyle: 'black',
+        lineWidth: 0.5
+      },
+      beforeEvent: function (chart$$1, event) {
+        chart$$1.options.customLine.visible = false;
 
-    function myScript(evt) {
-      //console.log(evt.offsetX + "," + evt.offsetY);
-      var ytop = myChart.chartArea.top;
-      var ybottom = myChart.chartArea.bottom;
-      var ymin = myChart.scales['y-axis-1'].min;
-      var ymax = myChart.scales['y-axis-1'].max;
-      var newy = '';
-      var showstuff = 0;
+        if (event.type === 'mousemove') {
+          let mouseXPos = event.x;
+          let mouseYPos = event.y;
+          let chartArea = event.chart.chartArea;
 
-      if (evt.offsetY <= ybottom && evt.offsetY >= ytop) {
-        newy = Math.abs((evt.offsetY - ytop) / (ybottom - ytop));
-        newy = (newy - 1) * -1;
-        newy = newy * Math.abs(ymax - ymin) + ymin;
-        showstuff = 1;
+          if (mouseXPos >= chartArea.left && mouseXPos <= chartArea.right && mouseYPos <= chartArea.bottom && mouseYPos >= chartArea.top) {
+            chart$$1.options.customLine.xPosition = mouseXPos;
+            chart$$1.options.customLine.visible = true;
+          }
+        }
+      },
+      afterDraw: function (chart$$1) {
+        if (chart$$1.options.customLine.visible) {
+          var ctx = chart$$1.chart.ctx;
+          var chartArea = chart$$1.chartArea;
+          var xPosition = chart$$1.options.customLine.xPosition;
+          ctx.save();
+          ctx.beginPath();
+          ctx.moveTo(xPosition, chartArea.bottom);
+          ctx.lineTo(xPosition, chartArea.top);
+          ctx.strokeStyle = 'black';
+          ctx.lineWidth = 0.5;
+          ctx.stroke();
+          ctx.restore();
+        }
+      }
+    };
+    chart.pluginService.register(verticalLineAtMouse);
+
+    function customTooltips(tooltip) {
+      // Tooltip Element
+      var tooltipElment = document.getElementById('chartjs-tooltip');
+
+      if (!tooltipElment) {
+        tooltipElment = document.createElement('div');
+        tooltipElment.id = 'chartjs-tooltip';
+        tooltipElment.innerHTML = '<div></div>';
+
+        this._chart.canvas.parentNode.appendChild(tooltipElment);
+      } // Hide if no tooltip
+
+
+      if (tooltip.opacity === 0) {
+        tooltipElment.style.opacity = 0;
+        return;
+      } // Set caret Position
+
+
+      tooltipElment.classList.remove('above', 'below', 'no-transform'); // console.log(tooltip);
+
+      if (tooltip.yAlign) {
+        tooltipElment.classList.add(tooltip.yAlign);
+      } else {
+        tooltipElment.classList.add('no-transform');
       }
 
-      var xtop = myChart.chartArea.left;
-      var xbottom = myChart.chartArea.right;
-      var xmin = myChart.scales['x-axis-1'].min;
-      var xmax = myChart.scales['x-axis-1'].max;
-      var newx = '';
+      tooltip.xAlign = 'left';
 
-      if (evt.offsetX <= xbottom && evt.offsetX >= xtop && showstuff == 1) {
-        newx = Math.abs((evt.offsetX - xtop) / (xbottom - xtop));
-        newx = newx * Math.abs(xmax - xmin) + xmin;
+      function getBody(bodyItem) {
+        return bodyItem.lines;
       }
 
-      if (newy != '' && newx != '') {
-        document.getElementById('graph_coords').textContent = newx + ',' + newy;
-      }
+      var positionY = this._chart.canvas.offsetTop;
+      var positionX = this._chart.canvas.offsetLeft;
+      let size = 120;
+      let offset = 0;
+      let something = determineAlignment(this._chart.tooltip, size);
+
+      if (something.xAlign === 'left') {
+        offset = size + positionX + 4;
+      } // Set Text
+
+
+      if (tooltip.body) {
+        var mouseXrelativeToChartData = this._chart.tooltip._eventPosition.x - this._chart.chartArea.left;
+        let distance = tooltip.title[0] || [];
+        let elevation = tooltip.body.map(getBody)[0][0];
+        let distanceRounded = parseFloat(Math.round(distance * 100) / 100).toFixed(1);
+        let elevationRounded = parseFloat(Math.round(elevation * 100) / 100).toFixed();
+        var innerHtml = `dist: ${distanceRounded}km</br>
+        elevation: ${elevationRounded}m</br>
+        Align  ${something.xAlign} </br>`;
+        var contentDiv = tooltipElment.querySelector('div');
+        contentDiv.innerHTML = innerHtml;
+      } // window.lager = this._chart;
+      // console.log(this._chart);
+      // Display, position, and set styles for font
+
+
+      tooltipElment.style.opacity = 1;
+      tooltipElment.style.left = mouseXrelativeToChartData - positionX + offset + 'px';
+      tooltipElment.style.top = positionY + 'px';
+      tooltipElment.style.fontFamily = tooltip._bodyFontFamily;
+      tooltipElment.style.fontSize = tooltip.bodyFontSize + 'px';
+      tooltipElment.style.fontStyle = tooltip._bodyFontStyle;
+      tooltipElment.style.padding = tooltip.yPadding + 'px ' + tooltip.xPadding + 'px';
     }
 
-    ctx.addEventListener('mousemove', myScript); // window.onload = function() {
-    //     something = ;
-    // };
-    // ctx.onmousemove(function(evt) {
-    //    
-    // });
-    // const ctx = document.getElementById('myChart').getContext('2d');
-    // var myChart = new Chart(ctx, {
-    //     // type: 'LineWithLine',
-    //     type: 'scatter',
-    //     data: {
-    //         datasets: [{
-    //             data: elevationData,
-    //             backgroundColor: ['rgba(255, 179, 74, 1)'],
-    //             borderColor: ['rgba(255, 179, 74, 0.4)'],
-    //             borderWidth: 1,
-    //             showLine: true,
-    //             pointRadius: 0
-    //         }]
-    //     },
-    //     options: {
-    //         legend: {
-    //             display: false
-    //         },
-    //         scales: {
-    //             yAxes: [{
-    //                 ticks: {
-    //                     beginAtZero: true,
-    //                     max: undefined,
-    //                     min: 0,
-    //                     stepSize: 50,
-    //                     callback: function(value, index, values) {
-    //                         if (value != 0) {
-    //                             return value + ' m';
-    //                         } else {
-    //                             return value;
-    //                         }
-    //                     }
-    //                 }
-    //             }],
-    //             xAxes: [{
-    //                 ticks: {
-    //                     beginAtZero: true,
-    //                     max: maxDistance(elevationData),
-    //                     min: 0,
-    //                     // stepSize: 10,
-    //                     maxTicksLimit: 12,
-    //                     callback: function(value, index, values) {
-    //                         if (value != 0) {
-    //                             return value + ' km';
-    //                         } else {
-    //                             return value;
-    //                         }
-    //                     }
-    //                 }
-    //             }],
-    //             tooltip: {
-    //                 intersect: false
-    //             }
-    //         }
-    //     }
-    // });
-    // ctx.mousemove(function(evt) {
-    //     //console.log(evt.offsetX + "," + evt.offsetY);
-    //     var ytop = myChart.chartArea.top;
-    //     var ybottom = myChart.chartArea.bottom;
-    //     var ymin = myChart.scales['y-axis-1'].min;
-    //     var ymax = myChart.scales['y-axis-1'].max;
-    //     var newy = '';
-    //     var showstuff = 0;
-    //     if (evt.offsetY <= ybottom && evt.offsetY >= ytop) {
-    //         newy = Math.abs((evt.offsetY - ytop) / (ybottom - ytop));
-    //         newy = (newy - 1) * -1;
-    //         newy = newy * (Math.abs(ymax - ymin)) + ymin;
-    //         showstuff = 1;
-    //     }
-    //     var xtop = myChart.chartArea.left;
-    //     var xbottom = myChart.chartArea.right;
-    //     var xmin = myChart.scales['x-axis-1'].min;
-    //     var xmax = myChart.scales['x-axis-1'].max;
-    //     var newx = '';
-    //     if (evt.offsetX <= xbottom && evt.offsetX >= xtop && showstuff == 1) {
-    //         newx = Math.abs((evt.offsetX - xtop) / (xbottom - xtop));
-    //         newx = newx * (Math.abs(xmax - xmin)) + xmin;
-    //     }
-    //     if (newy != '' && newx != '') {
-    //         //console.log(newx + ',' + newy);
-    //         document.getElementById('graph_coords').html('Mouse Coordinates: ' + newx.toFixed(2) + ',' + newy.toFixed(2));
-    //     }
-    // });
+    function determineAlignment(tooltip, size) {
+      var model = tooltip._model;
+      var chart$$1 = tooltip._chart;
+      var chartArea = tooltip._chart.chartArea;
+      var xAlign = 'center';
+      var yAlign = 'center';
+
+      if (model.y < size.height) {
+        yAlign = 'top';
+      } else if (model.y > chart$$1.height - size.height) {
+        yAlign = 'bottom';
+      }
+
+      var lf, rf; // functions to determine left, right alignment
+
+      var olf, orf; // functions to determine if left/right alignment causes tooltip to go outside chart
+
+      var yf; // function to get the y alignment if the tooltip goes outside of the left or right edges
+
+      var midX = (chartArea.left + chartArea.right) / 2;
+      var midY = (chartArea.top + chartArea.bottom) / 2;
+
+      if (yAlign === 'center') {
+        lf = function (x) {
+          return x <= midX;
+        };
+
+        rf = function (x) {
+          return x > midX;
+        };
+      } else {
+        lf = function (x) {
+          return x <= size.width / 2;
+        };
+
+        rf = function (x) {
+          return x >= chart$$1.width - size.width / 2;
+        };
+      }
+
+      olf = function (x) {
+        return x + size.width + model.caretSize + model.caretPadding > chart$$1.width;
+      };
+
+      orf = function (x) {
+        return x - size.width - model.caretSize - model.caretPadding < 0;
+      };
+
+      yf = function (y) {
+        return y <= midY ? 'top' : 'bottom';
+      };
+
+      if (lf(model.x)) {
+        xAlign = 'left'; // Is tooltip too wide and goes over the right side of the chart.?
+
+        if (olf(model.x)) {
+          xAlign = 'center';
+          yAlign = yf(model.y);
+        }
+      } else if (rf(model.x)) {
+        xAlign = 'right'; // Is tooltip too wide and goes outside left edge of canvas?
+
+        if (orf(model.x)) {
+          xAlign = 'center';
+          yAlign = yf(model.y);
+        }
+      }
+
+      var opts = tooltip._options;
+      return {
+        xAlign: opts.xAlign ? opts.xAlign : xAlign,
+        yAlign: opts.yAlign ? opts.yAlign : yAlign
+      };
+    }
+
+    chart.Tooltip.positioners.custom = function (elements, mousePosition) {
+      //check to see if mouse is within the chart not the canvas. 
+      if (!elements.length) {
+        return false;
+      }
+
+      return {
+        x: mousePosition.x,
+        y: 10
+      };
+    };
+    /* *********************** utils *********************** */
+
 
     function maxDistance(chartData) {
       // max distance is the last point in the distance/elevation array
@@ -24853,138 +24933,6 @@
       maxDistance = Math.round(maxDistance * 100) / 100; // Round to 2 decimal places
 
       return maxDistance;
-    } // // var chart = new Chart(ctx, {
-    // //     type: 'LineWithLine',
-    // //     data: {
-    // //         labels: ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul'],
-    // //         datasets: [{
-    // //             label: 'Statistics',
-    // //             data: [3, 1, 2, 5, 4, 7, 6],
-    // //             backgroundColor: 'rgba(0, 119, 204, 0.8)',
-    // //             borderColor: 'rgba(0, 119, 204, 0.3)',
-    // //             fill: false
-    // //         }]
-    // //     },
-    // //     options: {
-    // //         responsive: false,
-    // //         tooltips: {
-    // //             intersect: false
-    // //         },
-    // //         scales: {
-    // //             yAxes: [{
-    // //                 ticks: {
-    // //                     beginAtZero: true
-    // //                 }
-    // //             }]
-    // //         }
-    // //     }
-    // // });
-    // // function addLineToolTip(){
-    // //     Chart.defaults.LineWithLine = Chart.defaults.scatter;
-    // //     Chart.controllers.LineWithLine = Chart.controllers.scatter.extend({
-    // //         draw: function(ease) {
-    // //             Chart.controllers.line.prototype.draw.call(this, ease);
-    // //             // console.log(this.chart.tooltip._eventPosition);
-    // //             if (this.chart.tooltip._active && this.chart.tooltip._active.length) {
-    // //                 var activePoint = this.chart.tooltip._active[0],
-    // //                     ctx = this.chart.ctx,
-    // //                     x = activePoint.tooltipPosition().x,
-    // //                     topY = this.chart.scales['y-axis-1'].top,
-    // //                     bottomY = this.chart.scales['y-axis-1'].bottom;
-    // //                 // draw line
-    // //                 ctx.save();
-    // //                 ctx.beginPath();
-    // //                 ctx.moveTo(x, topY);
-    // //                 ctx.lineTo(x, bottomY);
-    // //                 ctx.lineWidth = 2;
-    // //                 ctx.strokeStyle = '#07C';
-    // //                 ctx.stroke();
-    // //                 ctx.restore();
-    // //             }
-    // //         }
-    // //     });
-    // // }
-    // // $(document).ready(function() {
-    // //   var ctx = $("#graph_1");
-    // //   var dataArray =  [ {x:1,y:1},{x:2,y:3},{x:3,y:5},{x:4,y:8},{x:5,y:7},{x:6,y:4},{x:7,y:2},{x:8,y:1} ];
-    // //   var myChart = new Chart(ctx, {
-    // //     type: 'scatter',
-    // //     data: {
-    // //       datasets: [{
-    // //         label: "test",
-    // //         fill: false,
-    // //         data: dataArray
-    // //       }]
-    // //     },
-    // //     options: {
-    // //       title: {
-    // //         display: true,
-    // //         text: 'Test Graph'
-    // //       },
-    // //       animation: {
-    // //         duration: 0,
-    // //       }, // general animation time
-    // //       hover: {
-    // //         animationDuration: 0,
-    // //       }, // duration of animations when hovering an item
-    // //       responsiveAnimationDuration: 0, // animation duration after a resize
-    // //       scales: {
-    // //         xAxes: [{
-    // //           display: true,
-    // //           scaleLabel: {
-    // //             display: true,
-    // //             labelString: 'x axis label'
-    // //           }
-    // //         }],
-    // //         yAxes: [{
-    // //           display: true,
-    // //           scaleLabel: {
-    // //             display: true,
-    // //             labelString: 'y axis label'
-    // //           }
-    // //         }]
-    // //       },
-    // //       tooltips: {
-    // //         mode: 'index',
-    // //         intersect: false,
-    // //         callbacks: {
-    // //           // Use the footer callback to display the sum of the items showing in the tooltip
-    // //           footer: function(tooltipItems, data) {
-    // //             //return 'x:' + this._eventPosition.x + ' y:' + this._eventPosition.y;
-    // //           },
-    // //         },
-    // //         footerFontStyle: 'normal'
-    // //       },
-    // //     }
-    // //   });
-    // //   ctx.mousemove(function(evt) {
-    // //     //console.log(evt.offsetX + "," + evt.offsetY);
-    // //     var ytop = myChart.chartArea.top;
-    // //     var ybottom = myChart.chartArea.bottom;
-    // //     var ymin = myChart.scales['y-axis-1'].min;
-    // //     var ymax = myChart.scales['y-axis-1'].max;
-    // //     var newy = '';
-    // //     var showstuff = 0;
-    // //     if (evt.offsetY <= ybottom && evt.offsetY >= ytop) {
-    // //       newy = Math.abs((evt.offsetY - ytop) / (ybottom - ytop));
-    // //       newy = (newy - 1) * -1;
-    // //       newy = newy * (Math.abs(ymax - ymin)) + ymin;
-    // //       showstuff = 1;
-    // //     }
-    // //     var xtop = myChart.chartArea.left;
-    // //     var xbottom = myChart.chartArea.right;
-    // //     var xmin = myChart.scales['x-axis-1'].min;
-    // //     var xmax = myChart.scales['x-axis-1'].max;
-    // //     var newx = '';
-    // //     if (evt.offsetX <= xbottom && evt.offsetX >= xtop && showstuff == 1) {
-    // //       newx = Math.abs((evt.offsetX - xtop) / (xbottom - xtop));
-    // //       newx = newx * (Math.abs(xmax - xmin)) + xmin;
-    // //     }
-    // //     if (newy != '' && newx != '') {
-    // //       //console.log(newx + ',' + newy);
-    // //       $("#graph_coords").html('Mouse Coordinates: ' + newx.toFixed(2) + ',' + newy.toFixed(2));
-    // //     }
-    // //   });
-    // // });
+    }
 
 }());

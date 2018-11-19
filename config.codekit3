@@ -60,16 +60,23 @@
 	"/source/images/favicon.ico": {
 		"cB": 0,
 		"ft": 8192,
-		"oA": 0,
+		"oA": 2,
 		"oAP": "/build/favicon.ico",
-		"oF": 2
+		"oF": 3
 		},
 	"/source/index.html": {
 		"cB": 0,
 		"ft": 8192,
-		"oA": 2,
+		"oA": 0,
 		"oAP": "/build/index.html",
 		"oF": 1
+		},
+	"/source/js/dump": {
+		"cB": 0,
+		"ft": 8192,
+		"oA": 0,
+		"oAP": "/build/js/dump",
+		"oF": 0
 		},
 	"/source/js/elevationData.js": {
 		"ft": 64,
