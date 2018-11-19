@@ -16,8 +16,5 @@
     "rollup-plugin-babel": "^4.0.3",
     "rollup-plugin-commonjs": "^9.2.0",
     "rollup-plugin-node-resolve": "^3.4.0"
-  },
-  "dependencies": {
-    "chart.js": "^2.7.3"
   }
 }
