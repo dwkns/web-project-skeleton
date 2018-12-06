@@ -150,11 +150,11 @@
 	},
 "projectAttributes": {
 	"creationDate": 562065816.70207703,
-	"displayValue": "web-project-skeleton",
+	"displayValue": "",
 	"displayValueWasSetByUser": 1,
 	"iconImageName": "meme-leo",
 	"iconImageWasSetByUser": 0,
-	"lastBuiltDate": 565818473.61377895
+	"lastBuiltDate": 565819205.57545996
 	},
 "projectSettings": {
 	"abortBuildOnError": 1,
