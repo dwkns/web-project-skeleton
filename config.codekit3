@@ -17,7 +17,7 @@
 		},
 	"/node_modules": {
 		"ft": 65536,
-		"oA": 2,
+		"oA": 1,
 		"oAP": "/build/node_modules",
 		"oF": 0
 		},
@@ -71,16 +71,6 @@
 		"oAP": "/build/index.html",
 		"oF": 1
 		},
-	"/source/js/bundle.js": {
-		"ft": 64,
-		"ma": 0,
-		"mi": 0,
-		"oA": 1,
-		"oAP": "/build/min/bundle.js",
-		"oF": 0,
-		"sC": 3,
-		"tS": 0
-		},
 	"/source/js/helloWorld.js": {
 		"ft": 64,
 		"ma": 0,
@@ -96,7 +86,7 @@
 		"ma": 0,
 		"mi": 0,
 		"oA": 0,
-		"oAP": "/source/js/bundle.js",
+		"oAP": "/source/js/main.js",
 		"oF": 3,
 		"sC": 0,
 		"tS": 0
@@ -150,11 +140,11 @@
 	},
 "projectAttributes": {
 	"creationDate": 562065816.70207703,
-	"displayValue": "",
-	"displayValueWasSetByUser": 1,
+	"displayValue": "web-project-skeleton",
+	"displayValueWasSetByUser": 0,
 	"iconImageName": "meme-leo",
 	"iconImageWasSetByUser": 0,
-	"lastBuiltDate": 565819205.57545996
+	"lastBuiltDate": 564360069.56150496
 	},
 "projectSettings": {
 	"abortBuildOnError": 1,
