@@ -1,6 +1,6 @@
 // source/js/helloWorld.js
 
-export const helloWorld = 'Well hello there...';
+export const helloWorld = 'The helloWorld module is working';
 
 export function exportedFunction(number) {
     return `The number is ${number}`;

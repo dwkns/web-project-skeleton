@@ -1,8 +1,18 @@
 // source/scss/_body.scss
+
+$brand: #4A90E2;
+$brand-alternate: #F5A623;
+
 body {
     font-family: -apple-system, Sans-Serif;
+    color: $brand;
 }
 
 h1 {
-    color: blue;
+    font-size: 24pt;
 }
+
+.testClass {
+    color: $brand-alternate;
+}
+

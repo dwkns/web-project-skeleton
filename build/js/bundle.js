@@ -2,10 +2,10 @@
     'use strict';
 
     // source/js/helloWorld.js
-    const helloWorld = 'Well hello there...';
+    const helloWorld = 'The helloWorld module is working';
 
     // source/js/main.js
-    const outputString = `The module says... ${helloWorld}`;
+    const outputString = `Javascript Modules... ${helloWorld}`;
     document.getElementById('outputField').innerHTML = outputString;
 
 }());
